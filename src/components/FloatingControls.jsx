@@ -1,15 +1,35 @@
 import { Divider, Tooltip } from "@douyinfe/semi-ui";
-import { useTransform, useLayout } from "../hooks";
+import { useTransform, useLayout, useDiagram, useSettings } from "../hooks";
 import { exitFullscreen } from "../utils/fullscreen";
 import { useTranslation } from "react-i18next";
+import { performAutoLayout } from "../utils/autoLayout";
 
 export default function FloatingControls() {
   const { transform, setTransform } = useTransform();
   const { setLayout } = useLayout();
   const { t } = useTranslation();
+  const { tables, relationships, updateTable } = useDiagram();
+  const { settings } = useSettings();
+
+  const handleAutoLayout = () => {
+    const layouted = performAutoLayout(tables, relationships, settings);
+    Object.keys(layouted).forEach((tableId) => {
+      if (layouted[tableId]) {
+        updateTable(tableId, layouted[tableId]);
+      }
+    });
+  };
 
   return (
     <div className="flex gap-2">
+      <Tooltip content={t("auto_layout") || "Auto Layout"}>
+        <button
+          className="px-3 py-2 rounded-lg popover-theme"
+          onClick={handleAutoLayout}
+        >
+          <i className="fa-solid fa-wand-magic-sparkles" />
+        </button>
+      </Tooltip>
       <div className="popover-theme flex rounded-lg items-center">
         <button
           className="px-3 py-2"
