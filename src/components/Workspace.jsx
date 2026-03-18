@@ -508,11 +508,9 @@ export default function WorkSpace() {
               </Button>
             </div>
           )}
-          {!(layout.sidebar || layout.toolbar || layout.header) && (
-            <div className="fixed right-5 bottom-4">
-              <FloatingControls />
-            </div>
-          )}
+          <div className="fixed right-5 bottom-4">
+            <FloatingControls />
+          </div>
         </div>
       </div>
       <Modal
