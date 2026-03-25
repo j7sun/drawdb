@@ -126,6 +126,7 @@ const en = {
     check: "Check expression",
     this_will_appear_as_is: "*This will appear in the generated script as is.",
     comment: "Comment",
+    description: "Description",
     add_field: "Add field",
     values: "Values",
     size: "Size",

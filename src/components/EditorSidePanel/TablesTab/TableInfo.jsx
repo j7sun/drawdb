@@ -209,7 +209,7 @@ export default function TableInfo({ data }) {
         headerLine={false}
       >
         <Collapse keepDOM={false} lazyRender>
-          <Collapse.Panel header={t("comment")} itemKey="1">
+          <Collapse.Panel header={t("description")} itemKey="1">
             <TextArea
               field="comment"
               value={data.comment}
