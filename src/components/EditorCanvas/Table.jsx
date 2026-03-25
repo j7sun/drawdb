@@ -23,6 +23,7 @@ import { resolveType } from "../../utils/customTypes";
 import { isRtl } from "../../i18n/utils/rtl";
 import i18n from "../../i18n/i18n";
 import { getCommentHeight, getTableHeight } from "../../utils/utils";
+import CommentBadge from "./CommentBadge";
 
 export default function Table({
   tableData,
@@ -173,6 +174,7 @@ export default function Table({
               </div>
               <div className="hidden group-hover:block">
                 <div className="flex justify-end items-center mx-2 space-x-1.5">
+                  <CommentBadge tableId={tableData.id} />
                   <Button
                     icon={tableData.locked ? <IconLock /> : <IconUnlock />}
                     size="small"
