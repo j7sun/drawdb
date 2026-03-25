@@ -10,6 +10,8 @@ export default function LayoutContextProvider({ children }) {
     toolbar: true,
     dbmlEditor: false,
     readOnly: false,
+    commentsSheet: false,
+    commentsTableId: null,
   });
 
   return (

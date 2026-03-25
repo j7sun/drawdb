@@ -101,6 +101,7 @@ export const SIDESHEET = {
   NONE: 0,
   TIMELINE: 1,
   VERSIONS: 2,
+  CHANGELOG: 3,
 };
 
 export const DB = {
