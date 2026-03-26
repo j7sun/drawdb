@@ -18,6 +18,7 @@ import {
 } from "../../../hooks";
 import { isRtl } from "../../../i18n/utils/rtl";
 import { importSQL } from "../../../utils/importSQL";
+import { filterDDL } from "../../../utils/importSQL/filterDDL";
 import {
   getModalTitle,
   getModalWidth,
@@ -110,8 +111,9 @@ export default function Modal({
         ast = oracleParser.parse(importSource.src);
       } else {
         const parser = new Parser();
+        const ddlOnly = filterDDL(importSource.src);
 
-        ast = parser.astify(importSource.src, {
+        ast = parser.astify(ddlOnly, {
           database: targetDatabase,
         });
       }
