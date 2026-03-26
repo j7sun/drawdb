@@ -8,6 +8,11 @@
  *
  * @param {string} sql - Raw SQL string (e.g. a full MySQL dump)
  * @returns {string} SQL string containing only DDL statements, or "" if none found
+ *
+ * @limitation Splits on bare `;` characters. A semicolon inside a string
+ * literal (e.g. DEFAULT 'a;b') or CHECK constraint will cause that statement
+ * to be split and silently truncated. This is extremely rare in real-world
+ * schema DDL but is a known edge case.
  */
 export function filterDDL(sql) {
   // Remove block comments /* ... */ (including multi-line)
