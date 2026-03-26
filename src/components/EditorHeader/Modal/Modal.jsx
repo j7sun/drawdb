@@ -100,6 +100,16 @@ export default function Modal({
     }
   };
 
+  // node-sql-parser requires specific capitalisation for its `database` option.
+  // drawDB's DB constants use lowercase (e.g. "mysql"), so we map them here.
+  const PARSER_DB_MAP = {
+    [DB.MYSQL]: "MySQL",
+    [DB.POSTGRES]: "PostgreSQL",
+    [DB.SQLITE]: "SQLite",
+    [DB.MARIADB]: "MariaDB",
+    [DB.MSSQL]: "TransactSQL",
+  };
+
   const parseSQLAndLoadDiagram = () => {
     const targetDatabase = database === DB.GENERIC ? importDb : database;
 
@@ -114,7 +124,7 @@ export default function Modal({
         const ddlOnly = filterDDL(importSource.src);
 
         ast = parser.astify(ddlOnly, {
-          database: targetDatabase,
+          database: PARSER_DB_MAP[targetDatabase] ?? "MySQL",
         });
       }
     } catch (error) {
