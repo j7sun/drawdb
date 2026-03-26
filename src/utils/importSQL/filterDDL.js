@@ -31,5 +31,12 @@ export function filterDDL(sql) {
 
   if (ddlStatements.length === 0) return "";
 
-  return ddlStatements.join(";\n") + ";";
+  // Normalize SQL Server types that appear in MySQL dumps but are not
+  // recognised by node-sql-parser's MySQL grammar.
+  const normalized = ddlStatements
+    .join(";\n")
+    .replace(/\bNVARCHAR\b/gi, "VARCHAR")
+    .replace(/\bNCHAR\b/gi, "CHAR");
+
+  return normalized + ";";
 }

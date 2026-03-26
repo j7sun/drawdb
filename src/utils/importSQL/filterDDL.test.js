@@ -74,4 +74,18 @@ describe("filterDDL", () => {
     expect(result).not.toContain("INSERT INTO");
     expect(result).not.toContain("USE `Chinook`");
   });
+
+  it("normalizes NVARCHAR to VARCHAR", () => {
+    const sql = "CREATE TABLE `Album` (`Title` NVARCHAR(160) NOT NULL);";
+    const result = filterDDL(sql);
+    expect(result).toContain("VARCHAR(160)");
+    expect(result).not.toContain("NVARCHAR");
+  });
+
+  it("normalizes NCHAR to CHAR", () => {
+    const sql = "CREATE TABLE `t` (`code` NCHAR(10));";
+    const result = filterDDL(sql);
+    expect(result).toContain("CHAR(10)");
+    expect(result).not.toContain("NCHAR");
+  });
 });
