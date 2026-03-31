@@ -20,6 +20,10 @@ export function filterDDL(sql) {
   // Remove line comments -- ...
   cleaned = cleaned.replace(/--[^\n]*/g, "");
 
+  // Normalize MSSQL GO batch separators (on their own line) to semicolons.
+  // SSMS-generated scripts use GO instead of ; to end statements.
+  cleaned = cleaned.replace(/^\s*GO\s*$/gim, ";");
+
   const DDL_PREFIXES = ["CREATE TABLE", "ALTER TABLE"];
 
   const ddlStatements = cleaned
@@ -31,12 +35,17 @@ export function filterDDL(sql) {
 
   if (ddlStatements.length === 0) return "";
 
-  // Normalize SQL Server types that appear in MySQL dumps but are not
-  // recognised by node-sql-parser's MySQL grammar.
+  // Normalize SQL Server types that are not recognised by node-sql-parser,
+  // and strip MSSQL filegroup clauses (ON [PRIMARY] / TEXTIMAGE_ON [PRIMARY])
+  // that appear after the closing paren of CREATE TABLE.
   const normalized = ddlStatements
     .join(";\n")
     .replace(/\bNVARCHAR\b/gi, "VARCHAR")
-    .replace(/\bNCHAR\b/gi, "CHAR");
+    .replace(/\bNCHAR\b/gi, "CHAR")
+    .replace(
+      /\)\s*ON\s*\[[^\]]+\](\s*TEXTIMAGE_ON\s*\[[^\]]+\])?/gi,
+      ")",
+    );
 
   return normalized + ";";
 }

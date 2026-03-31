@@ -88,4 +88,44 @@ describe("filterDDL", () => {
     expect(result).toContain("CHAR(10)");
     expect(result).not.toContain("NCHAR");
   });
+
+  it("handles MSSQL GO batch separators", () => {
+    const sql = `USE [mydb]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Album] (
+  [AlbumId] [int] NOT NULL,
+  [Title] [nvarchar](160) NOT NULL
+)
+GO`;
+    const result = filterDDL(sql);
+    expect(result).toContain("CREATE TABLE");
+    expect(result).not.toContain("USE [mydb]");
+    expect(result).not.toContain("SET ANSI_NULLS");
+    expect(result).not.toContain("GO");
+  });
+
+  it("strips MSSQL ON [PRIMARY] filegroup clauses", () => {
+    const sql = `CREATE TABLE [dbo].[Album] (
+  [AlbumId] [int] NOT NULL
+) ON [PRIMARY]
+GO`;
+    const result = filterDDL(sql);
+    expect(result).toContain("CREATE TABLE");
+    expect(result).not.toContain("ON [PRIMARY]");
+  });
+
+  it("strips MSSQL ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] filegroup clauses", () => {
+    const sql = `CREATE TABLE [dbo].[Album] (
+  [Body] [ntext] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO`;
+    const result = filterDDL(sql);
+    expect(result).toContain("CREATE TABLE");
+    expect(result).not.toContain("ON [PRIMARY]");
+    expect(result).not.toContain("TEXTIMAGE_ON");
+  });
 });
