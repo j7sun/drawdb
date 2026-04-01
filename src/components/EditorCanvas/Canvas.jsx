@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import {
   Action,
   Cardinality,
   Constraint,
+  CULLING_THRESHOLD,
   darkBgTheme,
   ObjectType,
   gridSize,
@@ -32,6 +33,7 @@ import { areFieldsCompatible, getTableHeight } from "../../utils/utils";
 import { getRectFromEndpoints, isInsideRect } from "../../utils/rect";
 import { State, noteWidth } from "../../data/constants";
 import { nanoid } from "nanoid";
+import { getVisibleRect, isTableVisible } from "../../utils/viewportCulling";
 
 export default function Canvas() {
   const { t } = useTranslation();
@@ -50,6 +52,25 @@ export default function Canvas() {
   const { notes, updateNote } = useNotes();
   const { layout } = useLayout();
   const { settings } = useSettings();
+
+  // --- Viewport culling (active only when tables.length >= CULLING_THRESHOLD) ---
+  const isCullingActive = tables.length >= CULLING_THRESHOLD;
+
+  const visibleTables = useMemo(() => {
+    if (!isCullingActive) return tables;
+    const rect = getVisibleRect(viewBox);
+    return tables.filter((t) => isTableVisible(t, rect, settings.tableWidth));
+  }, [tables, viewBox, settings.tableWidth]);
+
+  const visibleRelationships = useMemo(() => {
+    if (!isCullingActive) return relationships;
+    const visibleIds = new Set(visibleTables.map((t) => t.id));
+    return relationships.filter(
+      (r) => visibleIds.has(r.startTableId) || visibleIds.has(r.endTableId)
+    );
+  }, [relationships, visibleTables]);
+  // --------------------------------------------------------------------------
+
   const { setUndoStack, setRedoStack } = useUndoRedo();
   const { transform, setTransform } = useTransform();
   const {
@@ -685,7 +706,7 @@ export default function Canvas() {
   return (
     <div className="grow h-full touch-none" id="canvas">
       <div
-        className="w-full h-full"
+        className="w-full h-full relative"
         style={{
           cursor: pointer.style,
           backgroundColor: settings.mode === "dark" ? darkBgTheme : "white",
@@ -744,10 +765,10 @@ export default function Canvas() {
               }}
             />
           ))}
-          {relationships.map((e) => (
+          {visibleRelationships.map((e) => (
             <Relationship key={e.id} data={e} />
           ))}
-          {tables.map((table) => (
+          {visibleTables.map((table) => (
             <Table
               key={table.id}
               tableData={table}
@@ -792,6 +813,11 @@ export default function Canvas() {
             />
           )}
         </svg>
+        {isCullingActive && (
+          <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded pointer-events-none select-none z-50">
+            ⚡ Showing {visibleTables.length} of {tables.length} tables
+          </div>
+        )}
       </div>
       {settings.showDebugCoordinates && (
         <div className="fixed flex flex-col flex-wrap gap-6 bg-[rgba(var(--semi-grey-1),var(--tw-bg-opacity))]/40 border border-color bottom-4 right-4 p-4 rounded-xl backdrop-blur-xs pointer-events-none select-none">
