@@ -128,4 +128,23 @@ GO`;
     expect(result).not.toContain("ON [PRIMARY]");
     expect(result).not.toContain("TEXTIMAGE_ON");
   });
+
+  it("strips MSSQL inline WITH (...) index options on PRIMARY KEY CLUSTERED", () => {
+    const sql = `CREATE TABLE [dbo].[AccountHourlyRate](
+  [ProjectID] [int] NOT NULL,
+  [AccountTypeID] [int] NOT NULL,
+  [WorkTypeID] [int] NOT NULL,
+PRIMARY KEY CLUSTERED
+(
+  [ProjectID] ASC,
+  [AccountTypeID] ASC,
+  [WorkTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO`;
+    const result = filterDDL(sql);
+    expect(result).toContain("CREATE TABLE");
+    expect(result).not.toContain("WITH (PAD_INDEX");
+    expect(result).not.toContain("ON [PRIMARY]");
+  });
 });

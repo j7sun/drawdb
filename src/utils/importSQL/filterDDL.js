@@ -43,7 +43,7 @@ export function filterDDL(sql) {
     .replace(/\bNVARCHAR\b/gi, "VARCHAR")
     .replace(/\bNCHAR\b/gi, "CHAR")
     .replace(
-      /\)\s*ON\s*\[[^\]]+\](\s*TEXTIMAGE_ON\s*\[[^\]]+\])?/gi,
+      /\)\s*(?:WITH\s*\([^)]*\)\s*)?ON\s*\[[^\]]+\](\s*TEXTIMAGE_ON\s*\[[^\]]+\])?/gi,
       ")",
     );
 

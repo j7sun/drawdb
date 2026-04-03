@@ -37,9 +37,16 @@ export default function ImportSource({
               }
               const reader = new FileReader();
               reader.onload = async (e) => {
-                setImportData((prev) => ({ ...prev, src: e.target.result }));
+                const buffer = e.target.result;
+                const uint8 = new Uint8Array(buffer);
+                // Detect UTF-16 BOM (SSMS saves .sql files as UTF-16 LE by default)
+                let encoding = "UTF-8";
+                if (uint8[0] === 0xff && uint8[1] === 0xfe) encoding = "UTF-16LE";
+                else if (uint8[0] === 0xfe && uint8[1] === 0xff) encoding = "UTF-16BE";
+                const text = new TextDecoder(encoding).decode(buffer);
+                setImportData((prev) => ({ ...prev, src: text }));
               };
-              reader.readAsText(f);
+              reader.readAsArrayBuffer(f);
 
               return {
                 autoRemove: false,
